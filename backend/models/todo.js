@@ -3,10 +3,13 @@ const Schema = mongoose.Schema;
 
 // Create schema for todo
 const TodoSchema = new Schema({
-  action: {
-    type: String,
-    required: [true, 'The todo text field is required'],
-  },
+  title:String,
+  body:String,
+  name:String,
+  createdAt:{
+    type:Date,
+    default:Date.now
+  }
 });
 
 // Create model for todo

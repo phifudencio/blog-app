@@ -2,23 +2,36 @@ const express = require('express');
 const router = express.Router();
 const Todo = require('../models/todo');
 
-router.get('/todos', (req, res, next) => {
-  // This will return all the data, exposing only the id and action field to the client
-  Todo.find({}, 'action')
-    .then((data) => res.json(data))
-    .catch(next);
+
+router.get("/todos", async(req,res,next) =>{
+  try{
+    const earliestTodo = await Todo.findOne().sort('-createdAt');
+
+    if(!earliestTodo){
+      return res.status(404).json({message:"No post items found."})
+    }
+
+    res.status(200).json(earliestTodo);
+  } catch (error){
+    console.log("Error retrieving earliest post:", error);
+    res.status(500).json({error: "Failed to retrieve earliest post."});
+  }
 });
 
 router.post('/todos', (req, res, next) => {
-  if (req.body.action) {
-    Todo.create(req.body)
-      .then((data) => res.json(data))
-      .catch(next);
-  } else {
-    res.json({
-      error: 'The input field is empty',
-    });
-  }
+ const {title,body, name} = req.body; 
+
+const newTodo = new Todo({
+  title,
+  body,
+  name,
+});
+
+newTodo.save()
+  .then((savedTodo) => {
+    res.status(201).json(savedTodo);
+  })
+  .catch(next);
 });
 
 router.delete('/todos/:id', (req, res, next) => {
